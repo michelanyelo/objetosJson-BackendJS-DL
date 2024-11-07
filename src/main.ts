@@ -79,7 +79,6 @@ function getTotalIncomeByCategory(sells: Sell[], products: Product[]): Record<st
 }
 
 // Función para identificar a los clientes VIP
-
 function getVipCustomers(sells: Sell[], products: Product[], customers: Customer[]): Array<{ customer: Customer; totalSpent: number }> {
   // Calcular el gasto total de cada cliente
   const customerSpending = sells.reduce((acc, sell) => {
@@ -100,7 +99,22 @@ function getVipCustomers(sells: Sell[], products: Product[], customers: Customer
     .filter((entry) => entry.totalSpent > 1000000);
 }
 
-    
+function generateInventoryReport(products: Product[]): Array<{ name: string; category: string; stock: number; status: string }> {
+  return products.map((product) => ({
+    // Retorna el nombre, categoría y stock del producto
+    name: product.name,
+    category: product.category,
+    stock: product.stock,
+    // Asigna el estado basado en el stock
+    status:
+      product.stock < 10
+        ? "Low Stock" // Bajo stock
+        : product.stock <= 20
+        ? "In Stock" // Stock suficiente
+        : "Enough Stock", // Suficiente stock
+  }));
+}
+
 
 // Datos iniciales
 const initialData = {
@@ -153,4 +167,8 @@ if (jsonData) {
 
   const topSellingCustomers = getVipCustomers(jsonData.sells, jsonData.products, jsonData.customers);
   console.log("Clientes VIP (han comprado más de 1.000.000):", topSellingCustomers);
+
+  const inventoryReport = generateInventoryReport(jsonData.products);
+  console.log("Reporte de inventario:", inventoryReport);
+
 }
