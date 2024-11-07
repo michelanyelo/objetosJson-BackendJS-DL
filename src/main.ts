@@ -164,3 +164,36 @@ function getTopSellingProducts(sells: Sell[], products: Product[]): Product[] {
 
 const topSellingProducts = getTopSellingProducts(sells, products);
 console.log(topSellingProducts);
+
+// Crear una función que calcule el total de ingresos por categoría de producto. (2
+//   Puntos)
+//   La función debe retornar un objeto donde las claves sean las categorías y los valores
+//   sean el total de ingresos (precio * cantidad vendida) para esa categoría.
+//   Hint: Utiliza los métodos reduce() y forEach()
+
+function getTotalIncomeByCategory(
+  sells: Sell[],
+  products: Product[]
+): Record<string, number> {
+  // Crear un objeto acumulador para almacenar los ingresos por categoría
+  const categoryIncome: Record<string, number> = {};
+
+  // Iterar sobre cada venta
+  sells.forEach((sell) => {
+    const product = products.find((product) => product.id === sell.productId);
+    if (product) {
+      // Calcular los ingresos por esta venta
+      const income = product.price * sell.quantity;
+
+      // Añadir el ingreso a la categoría correspondiente
+      const category = product.category;
+      categoryIncome[category] = (categoryIncome[category] || 0) + income;
+    }
+  });
+
+  return categoryIncome;
+}
+
+// Uso de la función
+const incomeByCategory = getTotalIncomeByCategory(sells, products);
+console.log(incomeByCategory);
