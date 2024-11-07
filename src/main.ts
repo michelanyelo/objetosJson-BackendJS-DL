@@ -22,126 +22,28 @@ interface Customer {
   email: string;
 }
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Televisor 50 inch 4k",
-    price: 400000,
-    category: "Electronics",
-    stock: 10,
-  },
-  {
-    id: 2,
-    name: "Celular Samsung",
-    price: 800000,
-    category: "Electronics",
-    stock: 5,
-  },
-  {
-    id: 3,
-    name: "Computadora Gamer",
-    price: 1200000,
-    category: "Electronics",
-    stock: 3,
-  },
-  {
-    id: 4,
-    name: "Tablet iPad",
-    price: 600000,
-    category: "Electronics",
-    stock: 8,
-  },
-  {
-    id: 5,
-    name: "Refrigerador",
-    price: 80000,
-    category: "Home Appliances",
-    stock: 12,
-  },
-  {
-    id: 6,
-    name: "Lavadora",
-    price: 70000,
-    category: "Home Appliances",
-    stock: 15,
-  },
-  {
-    id: 7,
-    name: "Secadora",
-    price: 60000,
-    category: "Home Appliances",
-    stock: 10,
-  },
-  {
-    id: 8,
-    name: "Microondas",
-    price: 40000,
-    category: "Home Appliances",
-    stock: 8,
-  },
-  {
-    id: 9,
-    name: "Cocina Eléctrica",
-    price: 90000,
-    category: "Home Appliances",
-    stock: 5,
-  },
-  {
-    id: 10,
-    name: "Horno Eléctrico",
-    price: 70000,
-    category: "Home Appliances",
-    stock: 12,
-  },
-];
-
-const sells: Sell[] = [
-  { id: 1, productId: 1, quantity: 2, saleDate: "2024-01-01", clientId: 10 },
-  { id: 2, productId: 3, quantity: 1, saleDate: "2024-02-10", clientId: 9 },
-  { id: 3, productId: 5, quantity: 3, saleDate: "2024-03-15", clientId: 8 },
-  { id: 4, productId: 2, quantity: 1, saleDate: "2024-04-20", clientId: 7 },
-  { id: 5, productId: 8, quantity: 2, saleDate: "2024-05-05", clientId: 6 },
-  { id: 6, productId: 6, quantity: 1, saleDate: "2024-06-18", clientId: 5 },
-  { id: 7, productId: 9, quantity: 2, saleDate: "2024-07-21", clientId: 4 },
-  { id: 8, productId: 4, quantity: 1, saleDate: "2024-08-15", clientId: 3 },
-  { id: 9, productId: 10, quantity: 5, saleDate: "2024-09-10", clientId: 2 },
-  { id: 10, productId: 7, quantity: 8, saleDate: "2024-10-01", clientId: 1 },
-];
-
-const customers: Customer[] = [
-  { id: 1, name: "Carlos Pérez", email: "carlos.perez@example.com" },
-  { id: 2, name: "Ana Gómez", email: "ana.gomez@example.com" },
-  { id: 3, name: "Luis Ramírez", email: "luis.ramirez@example.com" },
-  { id: 4, name: "María López", email: "maria.lopez@example.com" },
-  { id: 5, name: "José Martínez", email: "jose.martinez@example.com" },
-  { id: 6, name: "Laura Torres", email: "laura.torres@example.com" },
-  { id: 7, name: "Pedro Fernández", email: "pedro.fernandez@example.com" },
-  { id: 8, name: "Elena Ríos", email: "elena.rios@example.com" },
-  { id: 9, name: "Sofía Vargas", email: "sofia.vargas@example.com" },
-  { id: 10, name: "Manuel Ortiz", email: "manuel.ortiz@example.com" },
-];
-
-// Ejecutar npx tsx watch .\src\main.ts
-const arraytojson = (data: object) => {
+// Función para grabar y leer datos del archivo JSON
+const arraytojson = (data: object): { products: Product[]; sells: Sell[]; customers: Customer[] } | null => {
   try {
+    // Grabar datos en un archivo JSON local
     fs.writeFileSync("./public/db.json", JSON.stringify(data, null, 2));
     console.log("File written successfully");
+
+    // Leer datos del archivo JSON local
+    const localData = fs.readFileSync("./public/db.json", "utf-8");
+
+    // Parsear el contenido del archivo JSON
+    const jsonData = JSON.parse(localData);
+
+    return jsonData;
   } catch (error) {
-    console.error("Error writing file:", error);
+    console.error("Error writing or reading file:", error);
+    return null;
   }
 };
 
-arraytojson({ products, sells, customers });
-
-// Ordenar las ventas de mayor a menor
-// Implementar una función que encuentre los 3 productos más vendidos. (2 Puntos)
-// Esta función debe usar los arrays productos y ventas, y retornar un array con los 3
-// productos (objetos completos) más vendidos en orden descendente por cantidad de
-// ventas.
-// Hint: Utiliza los métodos reduce(), sort() y map() de JavaScript. ).
-
+// Función para obtener los 3 productos más vendidos
 function getTopSellingProducts(sells: Sell[], products: Product[]): Product[] {
-  // Acumular ventas por producto
   const productSales = sells.reduce((acum, sell) => {
     const product = products.find((product) => product.id === sell.productId);
     if (product) {
@@ -150,7 +52,6 @@ function getTopSellingProducts(sells: Sell[], products: Product[]): Product[] {
     return acum;
   }, {} as Record<number, number>);
 
-  // Añadir total de ventas a cada producto y ordenar de mayor a menor
   const sortedProducts = products
     .map((product) => ({
       ...product,
@@ -158,34 +59,17 @@ function getTopSellingProducts(sells: Sell[], products: Product[]): Product[] {
     }))
     .sort((a, b) => b.totalSales - a.totalSales);
 
-  // Retornar los 3 productos más vendidos
   return sortedProducts.slice(0, 3);
 }
 
-const topSellingProducts = getTopSellingProducts(sells, products);
-console.log(topSellingProducts);
-
-// Crear una función que calcule el total de ingresos por categoría de producto. (2
-//   Puntos)
-//   La función debe retornar un objeto donde las claves sean las categorías y los valores
-//   sean el total de ingresos (precio * cantidad vendida) para esa categoría.
-//   Hint: Utiliza los métodos reduce() y forEach()
-
-function getTotalIncomeByCategory(
-  sells: Sell[],
-  products: Product[]
-): Record<string, number> {
-  // Crear un objeto acumulador para almacenar los ingresos por categoría
+// Función para calcular el total de ingresos por categoría
+function getTotalIncomeByCategory(sells: Sell[], products: Product[]): Record<string, number> {
   const categoryIncome: Record<string, number> = {};
 
-  // Iterar sobre cada venta
   sells.forEach((sell) => {
     const product = products.find((product) => product.id === sell.productId);
     if (product) {
-      // Calcular los ingresos por esta venta
       const income = product.price * sell.quantity;
-
-      // Añadir el ingreso a la categoría correspondiente
       const category = product.category;
       categoryIncome[category] = (categoryIncome[category] || 0) + income;
     }
@@ -194,6 +78,79 @@ function getTotalIncomeByCategory(
   return categoryIncome;
 }
 
-// Uso de la función
-const incomeByCategory = getTotalIncomeByCategory(sells, products);
-console.log(incomeByCategory);
+// Función para identificar a los clientes VIP
+
+function getVipCustomers(sells: Sell[], products: Product[], customers: Customer[]): Array<{ customer: Customer; totalSpent: number }> {
+  // Calcular el gasto total de cada cliente
+  const customerSpending = sells.reduce((acc, sell) => {
+    const product = products.find((product) => product.id === sell.productId);
+    if (product) {
+      const totalCost = product.price * sell.quantity;
+      acc[sell.clientId] = (acc[sell.clientId] || 0) + totalCost;
+    }
+    return acc;
+  }, {} as Record<number, number>);
+
+  // Filtrar clientes con gasto mayor a $1,000,000 y mapearlos al formato requerido
+  return customers
+    .map((customer) => ({
+      customer,
+      totalSpent: customerSpending[customer.id] || 0,
+    }))
+    .filter((entry) => entry.totalSpent > 1000000);
+}
+
+    
+
+// Datos iniciales
+const initialData = {
+  products: [
+    { id: 1, name: "Televisor 50 inch 4k", price: 400000, category: "Electronics", stock: 10 },
+    { id: 2, name: "Celular Samsung", price: 800000, category: "Electronics", stock: 5 },
+    { id: 3, name: "Computadora Gamer", price: 1200000, category: "Electronics", stock: 3 },
+    { id: 4, name: "Tablet iPad", price: 600000, category: "Electronics", stock: 8 },
+    { id: 5, name: "Refrigerador", price: 80000, category: "Home Appliances", stock: 12 },
+    { id: 6, name: "Lavadora", price: 70000, category: "Home Appliances", stock: 15 },
+    { id: 7, name: "Secadora", price: 60000, category: "Home Appliances", stock: 10 },
+    { id: 8, name: "Microondas", price: 40000, category: "Home Appliances", stock: 8 },
+    { id: 9, name: "Cocina Eléctrica", price: 90000, category: "Home Appliances", stock: 5 },
+    { id: 10, name: "Horno Eléctrico", price: 70000, category: "Home Appliances", stock: 12 },
+  ],
+  sells: [
+    { id: 1, productId: 1, quantity: 2, saleDate: "2024-01-01", clientId: 10 },
+    { id: 2, productId: 3, quantity: 1, saleDate: "2024-02-10", clientId: 6 },
+    { id: 3, productId: 5, quantity: 3, saleDate: "2024-03-15", clientId: 5 },
+    { id: 4, productId: 2, quantity: 1, saleDate: "2024-04-20", clientId: 3 },
+    { id: 5, productId: 8, quantity: 2, saleDate: "2024-05-05", clientId: 10 },
+    { id: 6, productId: 6, quantity: 1, saleDate: "2024-06-18", clientId: 1 },
+    { id: 7, productId: 9, quantity: 2, saleDate: "2024-07-21", clientId: 2 },
+    { id: 8, productId: 4, quantity: 1, saleDate: "2024-08-15", clientId: 4},
+    { id: 9, productId: 10, quantity: 5, saleDate: "2024-09-10", clientId: 5 },
+    { id: 10, productId: 7, quantity: 8, saleDate: "2024-10-01", clientId: 10 },
+  ],
+  customers: [
+    { id: 1, name: "Carlos Pérez", email: "carlos.perez@example.com" },
+    { id: 2, name: "Ana Gómez", email: "ana.gomez@example.com" },
+    { id: 3, name: "Luis Ramírez", email: "luis.ramirez@example.com" },
+    { id: 4, name: "María López", email: "maria.lopez@example.com" },
+    { id: 5, name: "José Martínez", email: "jose.martinez@example.com" },
+    { id: 6, name: "Laura Torres", email: "laura.torres@example.com" },
+    { id: 7, name: "Pedro Fernández", email: "pedro.fernandez@example.com" },
+    { id: 8, name: "Elena Ríos", email: "elena.rios@example.com" },
+    { id: 9, name: "Sofía Vargas", email: "sofia.vargas@example.com" },
+    { id: 10, name: "Manuel Ortiz", email: "manuel.ortiz@example.com" },
+  ],
+};
+
+// Cargar datos y ejecutar las funciones
+const jsonData = arraytojson(initialData);
+if (jsonData) {
+  const topSellingProducts = getTopSellingProducts(jsonData.sells, jsonData.products);
+  console.log("Top 3 productos más vendidos:", topSellingProducts);
+
+  const incomeByCategory = getTotalIncomeByCategory(jsonData.sells, jsonData.products);
+  console.log("Ingresos por categoría:", incomeByCategory);
+
+  const topSellingCustomers = getVipCustomers(jsonData.sells, jsonData.products, jsonData.customers);
+  console.log("Clientes VIP (han comprado más de 1.000.000):", topSellingCustomers);
+}
