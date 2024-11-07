@@ -131,14 +131,14 @@
     {
       "id": 9,
       "productId": 10,
-      "quantity": 2,
+      "quantity": 5,
       "saleDate": "2024-09-10",
       "clientId": 2
     },
     {
       "id": 10,
       "productId": 7,
-      "quantity": 1,
+      "quantity": 8,
       "saleDate": "2024-10-01",
       "clientId": 1
     }

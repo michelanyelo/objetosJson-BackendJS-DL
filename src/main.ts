@@ -104,8 +104,8 @@ const sells: Sell[] = [
   { id: 6, productId: 6, quantity: 1, saleDate: "2024-06-18", clientId: 5 },
   { id: 7, productId: 9, quantity: 2, saleDate: "2024-07-21", clientId: 4 },
   { id: 8, productId: 4, quantity: 1, saleDate: "2024-08-15", clientId: 3 },
-  { id: 9, productId: 10, quantity: 2, saleDate: "2024-09-10", clientId: 2 },
-  { id: 10, productId: 7, quantity: 1, saleDate: "2024-10-01", clientId: 1 },
+  { id: 9, productId: 10, quantity: 5, saleDate: "2024-09-10", clientId: 2 },
+  { id: 10, productId: 7, quantity: 8, saleDate: "2024-10-01", clientId: 1 },
 ];
 
 const customers: Customer[] = [
@@ -121,9 +121,7 @@ const customers: Customer[] = [
   { id: 10, name: "Manuel Ortiz", email: "manuel.ortiz@example.com" },
 ];
 
-// Ejecutar tsc .\src\main.ts
-// Cambiar la extensión del main.js a main.cjs
-// Ejecutar node .\src\main.cjs para instanciar la db
+// Ejecutar npx tsx watch .\src\main.ts
 const arraytojson = (data: object) => {
   try {
     fs.writeFileSync("./public/db.json", JSON.stringify(data, null, 2));
@@ -134,3 +132,35 @@ const arraytojson = (data: object) => {
 };
 
 arraytojson({ products, sells, customers });
+
+// Ordenar las ventas de mayor a menor
+// Implementar una función que encuentre los 3 productos más vendidos. (2 Puntos)
+// Esta función debe usar los arrays productos y ventas, y retornar un array con los 3
+// productos (objetos completos) más vendidos en orden descendente por cantidad de
+// ventas.
+// Hint: Utiliza los métodos reduce(), sort() y map() de JavaScript. ).
+
+function getTopSellingProducts(sells: Sell[], products: Product[]): Product[] {
+  // Acumular ventas por producto
+  const productSales = sells.reduce((acum, sell) => {
+    const product = products.find((product) => product.id === sell.productId);
+    if (product) {
+      acum[product.id] = (acum[product.id] || 0) + sell.quantity;
+    }
+    return acum;
+  }, {} as Record<number, number>);
+
+  // Añadir total de ventas a cada producto y ordenar de mayor a menor
+  const sortedProducts = products
+    .map((product) => ({
+      ...product,
+      totalSales: productSales[product.id] || 0,
+    }))
+    .sort((a, b) => b.totalSales - a.totalSales);
+
+  // Retornar los 3 productos más vendidos
+  return sortedProducts.slice(0, 3);
+}
+
+const topSellingProducts = getTopSellingProducts(sells, products);
+console.log(topSellingProducts);
